@@ -8,11 +8,15 @@ import Home from './pages/zhuye/Home'
 import Test from './pages/Test'
 import Teams from './pages/zhuye/Teams'
 
+import ElementUI from 'element-ui'
+// import './element-variables.scss'
+import '../theme/index.css'
 
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 Vue.use(VueResource);
+Vue.use(ElementUI);
 
 new Vue({
     el: '#app',

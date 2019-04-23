@@ -1,54 +1,75 @@
 <template>
     <div class="container">
-        <div class="modal" :class="{'is-active':active}">
-            <div class="modal-background" @click="hidePanel()"></div>
-            <div class="modal-card">
-                <header class="modal-card-head">
-                    <p class="modal-card-title">{{problemName}} <br> <small>{{problemPoint}} Point</small></p>
-                    <button class="delete" aria-label="close" @click="hidePanel"></button>
-                </header>
-                <section class="modal-card-body">
-                    {{problemText}}
-                </section>
-                <footer class="modal-card-foot">
-                    <div class="columns is-flex" style="width: 100%">
-                        <div class="column is-10">
-                                <input class="input is-dark" type="text" placeholder="Input flag" >
-                        </div>
-                        <div class="column">
-                            <button class="button is-dark is-4">enter</button>
-                        </div>
-                    </div>
-                </footer>
+        <!--<div>-->
+        <!--<el-button>默认按钮</el-button>-->
+        <!--<el-button type="primary">主要按钮</el-button>-->
+        <!--<el-button type="success">成功按钮</el-button>-->
+        <!--<el-button type="info">信息按钮</el-button>-->
+        <!--<el-button type="warning">警告按钮</el-button>-->
+        <!--<el-button type="danger">危险按钮</el-button>-->
+        <!--</div>-->
+
+
+        <!--<el-button type="text" @click="dialogVisible = true">点击打开 Dialog</el-button>-->
+
+        <el-dialog
+                :visible.sync="dialogVisible"
+                width="70%"
+        >
+            <div slot="title" style="text-align: center"><h1>{{problemName}}</h1><h5>{{problemPoint}}</h5></div>
+            <div id="problem-dialog">
+                {{problemText}}
             </div>
-        </div>
+
+            <span slot="footer" class="dialog-footer">
+                <el-row :gutter="30">
+                    <el-col :span="21">
+                        <el-input v-model="flag" placeholder="Flag"></el-input>
+                    </el-col>
+                    <el-col :span="2">
+                        <el-button type="primary" @click="submitFlag()">Submit</el-button>
+                    </el-col>
+                </el-row>
+  </span>
+        </el-dialog>
         <div v-for="type in challenges" :key="type.value">
-            <div class="level">
-                <div class="level-item"><p class="title">{{type.name}}</p></div>
-            </div>
-            <div v-for="columnIndex in getColumn(type)" :key="columnIndex" class="tile is-12">
-                <div v-for="item in tttttt(type,columnIndex)" :key="item.value"
-                     class="tile is-3 is-parent is-vertical">
-                    <div class="button is-dark is-large tile is-vertical" @click="showPanel($event,item)"
-                         :class="{'is-loading':item.name===isLoading}">
-                        <div class="tile is-parent is-vertical"><p class="is-size-5">{{item.name}}</p></div>
-                        <div class="tile is-parent is-vertical"><p class="is-size-5">{{item.score}}</p></div>
-                    </div>
-                </div>
-            </div>
+            <el-row>
+                <el-col :span="24" class="problem-type">
+                    <div>{{type.name}}</div>
+                </el-col>
+            </el-row>
+            <el-row v-for="columnIndex in getColumn(type)" :key="columnIndex" :gutter="40">
+                <el-col :span="6" v-for="item in tttttt(type,columnIndex)" :key="item.value">
+                    <el-badge value="pass" class="item">
+                        <el-button @click="showPanel(item.name)" class="problem-box" type="primary"
+                                   v-loading="loading===item.name">
+                            <div>
+                                {{item.name}}<br>
+                                {{item.score}}
+                                <div></div>
+                            </div>
+                        </el-button>
+                    </el-badge>
+                </el-col>
+            </el-row>
         </div>
     </div>
 
 </template>
 
 <script>
+    /* eslint-disable */
+
+
     export default {
 
         data() {
             return {
-                isLoading: "",
+                dialogVisible: false,
+                loading: "",
+                flag: "",
                 problemText: "asd",
-                problemName: "asd",
+                problemName: "Hacked for fun",
                 problemPoint: 1000,
                 hide: true,
                 active: false,
@@ -106,17 +127,36 @@
                 return type.questions.slice((index - 1) * 4, index * 4)
             },
 
-            showPanel: function (event, item) {
-                this.isLoading = item.name;
-                this.$http.get("http://localhost:1234/getQuestion").then(function (res) {
-                    this.problemName = item.name;
-                    this.problemText = res.body;
-                    this.active = true;
-                    this.isLoading = "";
-                }, function (res) {
-                    this.isLoading = "";
-                    alert("请求错误");
-                });
+        testData:function (item) {
+            this.problemName = "假题";
+            this.problemPoint = -99999;
+            this.problemText = "别看了这是道假题";
+            this.loading = "";
+            this.dialogVisible = "true";
+        },
+
+            showPanel: function (item) {
+                item = event.currentTarget;
+                this.loading = item;
+                this.testData(item);
+
+
+                // this.$http.get("http://localhost:1234/getQuestion").then(function (res) {
+                //     let problem=res.body;
+                //     this.problemName = problem.title;
+                //     this.problemPoint=problem.score;
+                //     this.problemText = problem.text;
+                //     this.loading = "";
+                //     this.dialogVisible = "true";
+                // }, function (res) {
+                //     console.log(res);
+                //     this.loading = "";
+                //     this.dialogVisible = "true";
+                //     alert("请求错误");
+                // });
+            },
+            submitFlag: function () {
+
             },
             hidePanel: function () {
                 this.active = false;
@@ -126,6 +166,31 @@
 </script>
 
 <style scoped>
+
+    .el-row {
+        margin-bottom: 20px;
+
+    }
+
+    .el-card {
+        border-radius: 10px;
+    }
+
+    .problem-box {
+        height: 5rem;
+        width: 15rem;
+        text-align: center;
+        color: #1f4e5f;
+        border-radius: 10px;
+        font-size: 17px;
+        line-height: 30px;
+        /*background: #303133;*/
+    }
+
+    .el-row :last-child {
+        margin-bottom: 0;
+    }
+
     .overlay {
         position: fixed;
         top: 0;
@@ -156,14 +221,15 @@
         box-shadow: 5px 5px 5px 5px #888888;
     }
 
-    #problemTitle {
-        padding-bottom: 1em;
+    #problem-dialog {
+        text-align: left;
+        height: 30rem;
+        overflow: auto;
     }
 
-    #problemText {
-        overflow: auto;
-        height: 31em;
-        width: 55em;
+    .problem-type {
+        font-size: 2rem;
+        text-align: center;
     }
 
     .title {

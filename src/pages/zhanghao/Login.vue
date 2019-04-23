@@ -2,49 +2,68 @@
     <!--<div class="level">-->
     <!--<div class="level-item">-->
     <div class="login">
-        <h1 class="has-text-centered is-size-1">Login</h1>
-        <div class="field">
-            <label for="Username">Username</label>
-            <div class="control has-icons-left">
-                <input id="Username" class="input is-dark" type="text" placeholder="please input your username">
-                <span class="icon is-small is-left">
-                        <i class="fas fa-user"></i>
-                    </span>
-            </div>
-        </div>
-        <div class="field">
-            <label for="Password">Password</label>
-            <div class="control has-icons-left">
-                <input id="Password" type="password" class="input is-dark" placeholder="please input your password">
-                <span class="icon is-small is-left">
-                <i class="fas fa-lock"></i>
-            </span>
-            </div>
-        </div>
-        <div class="field">
-            <div class="control">
-                <div class="level">
-                    <div class="level-left">
-                        <div class="level-item">
-                            <button class="button is-dark">Submit</button>
-                        </div>
-                        <div class="level-item"><a href="">Forgot your password?</a></div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <div class="field">
-            <div class="control">
-
-            </div>
-        </div>
-
+        <h1 style="padding-bottom: 1rem">Login</h1>
+        <el-form :model="loginData" status-icon :rules="rules" ref="ruleForm" class="demo-ruleForm">
+            <el-form-item label="Username" prop="username">
+                <el-input prefix-icon="el-icon-edit" type="text" v-model="loginData.username" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="Password" prop="password" :error="loginData.error">
+                <el-input prefix-icon="el-icon-goods" type="password" v-model="loginData.password" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item style="text-align: left">
+                <el-button type="primary" @click="submitForm('loginData')">Login !</el-button>
+                <a href="/#/forgetPassword" style="padding-left: 1rem">Forget your password?</a>
+            </el-form-item>
+        </el-form>
     </div>
 </template>
 
 <script>
     export default {
+        data() {
+            let validateUsername = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('Please input username'));
+                }
+                callback();
+            };
+            let validatePassword = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('Please input password'));
+                }
+                callback();
+            };
+            return {
+                loginData: {
+                    username: '',
+                    password: '',
+                    error: ''
+                },
+                rules: {
+                    username: [
+                        {validator: validateUsername, trigger: 'blur'}
+                    ],
+                    password: [
+                        {validator: validatePassword, trigger: 'blur'}
+                    ]
+                }
+            };
+        },
+        methods: {
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        //TODO:登陆注册 前后端交互
+                        this.loginData.error='password error or username not exist';
+                    } else {
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            }
+        },
         name: "Login"
     }
 </script>

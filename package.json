@@ -9,6 +9,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "element-theme-chalk": "^2.7.2",
     "vue": "^2.5.21",
     "vue-blu": "^0.1.9",
     "vue-resource": "^1.5.1",
@@ -19,6 +20,7 @@
     "@vue/cli-plugin-eslint": "^3.3.0",
     "@vue/cli-service": "^3.3.0",
     "babel-eslint": "^10.0.1",
+    "element-theme-default": "^1.4.13",
     "element-ui": "^2.5.2",
     "eslint": "^5.8.0",
     "eslint-plugin-vue": "^5.0.0",

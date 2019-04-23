@@ -1,5 +1,7 @@
 <template>
-    <p>这里是主页</p>
+    <div class="container">
+
+    </div>
 </template>
 
 <script>

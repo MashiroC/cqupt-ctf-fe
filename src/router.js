@@ -10,6 +10,8 @@ import Match from "./pages/zhuye/Match"
 import Shop from "./pages/zhuye/Shop"
 import Login from "./pages/zhanghao/Login"
 import SignUp from "./pages/zhanghao/SignUp"
+import Test from "./pages/Test"
+import Forget from "./pages/zhanghao/ForgetPassword"
 
 const router = new VueRouter({
     routes: [{
@@ -44,6 +46,14 @@ const router = new VueRouter({
         path:'/SignUp',
         name:'/SignUp',
         component:SignUp
+    },{
+        path:'/test',
+        name:'/test',
+        component:Test
+    },{
+        path:'/forgetPassword',
+        name:'/forgetPassword',
+        component:Forget
     }
     ]
 });
