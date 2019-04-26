@@ -13,10 +13,15 @@
                         :collapse-transition="false"
                         style="border-bottom: 0">
                     <el-menu-item index="/"><img src="/ziti.png"></el-menu-item>
-                    <el-menu-item v-for="item in pages" :key='item.value' :index="item.name">{{item.name}}
+                    <el-menu-item v-for="item in pages" :key='item.value' :index="item.Name">{{item.Name}}
                     </el-menu-item>
-                    <el-menu-item index="/signup" class="onright">Signup</el-menu-item>
-                    <el-menu-item index="/login" class="onright">Login</el-menu-item>
+                    <div v-if="hasLogin()">
+                        <el-menu-item class="onright">{{this.username}}</el-menu-item>
+                    </div>
+                    <div v-else>
+                        <el-menu-item index="/signup" class="onright">Signup</el-menu-item>
+                        <el-menu-item index="/login" class="onright">Login</el-menu-item>
+                    </div>
                 </el-menu>
             </el-col>
         </el-row>
@@ -47,21 +52,26 @@
 </template>
 
 <script>
+    import global from "./Global"
     export default {
         data() {
             return {
-                pages: [{name: "Teams", active: false},
-                    {name: "Challenges", active: false},
-                    {name: "Scoreboard", active: false},
-                    {name: "Match", active: false},
-                    {name: "Shop", active: false}]
+                pages: [{Name: "Teams", active: false},
+                    {Name: "Challenges", active: false},
+                    {Name: "Scoreboard", active: false},
+                    {Name: "Match", active: false},
+                    {Name: "Shop", active: false}]
             }
         },
         methods: {
             checkActive: function (name) {
                 for (let i in this.pages) {
-                    this.pages[i].active = this.pages[i].name === name;
+                    this.pages[i].active = this.pages[i].Name === name;
                 }
+            },
+            hasLogin: function () {
+                this.username=global.username
+                return global.username!==""
             }
         }
     }

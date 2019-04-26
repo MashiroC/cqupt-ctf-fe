@@ -3,7 +3,7 @@
     <!--<div class="level-item">-->
     <div class="login">
         <h1 style="padding-bottom: 1rem">Login</h1>
-        <el-form :model="loginData" status-icon :rules="rules" ref="ruleForm" class="demo-ruleForm">
+        <el-form :model="loginData" status-icon :rules="rules" ref="loginData" class="demo-ruleForm">
             <el-form-item label="Username" prop="username">
                 <el-input prefix-icon="el-icon-edit" type="text" v-model="loginData.username" autocomplete="off"></el-input>
             </el-form-item>
@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import global from "../../Global"
     export default {
         data() {
             let validateUsername = (rule, value, callback) => {
@@ -53,8 +54,17 @@
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        //TODO:登陆注册 前后端交互
-                        this.loginData.error='password error or username not exist';
+                        this.$http.post("http://localhost:8888/login",{username:this.loginData.username,password:this.loginData.password}).then(function (res) {
+                            res = res.body;
+                            switch (res.status) {
+                                case 10000:
+                                    //SET cookie
+                                    global.username=res.data.username;
+                                    location.href="/#/"
+                            }
+                        },function (res) {
+                            this.loginData.error='password error or username not exist';
+                        })
                     } else {
                         return false;
                     }
@@ -64,7 +74,7 @@
                 this.$refs[formName].resetFields();
             }
         },
-        name: "Login"
+        Name: "Login"
     }
 </script>
 

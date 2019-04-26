@@ -16,43 +16,43 @@ import Forget from "./pages/zhanghao/ForgetPassword"
 const router = new VueRouter({
     routes: [{
         path: '/Teams',
-        name:'Teams',
+        Name:'Teams',
         component:Teams
     },{
         path: '/Challenges',
-        name:'Challenges',
+        Name:'Challenges',
         component:Challenges
     },{
         path: '/Scoreboard',
-        name:'Scoreboard',
+        Name:'Scoreboard',
         component:Scoreboard
     },{
         path: '/Match',
-        name:'Match',
+        Name:'Match',
         component:Match
     },{
         path: '/Shop',
-        name:'Shop',
+        Name:'Shop',
         component:Shop
     },{
         path:'/',
-        name:'/Home',
+        Name:'/Home',
         component:Home
     },{
         path:'/Login',
-        name:'/Login',
+        Name:'/Login',
         component:Login
     },{
         path:'/SignUp',
-        name:'/SignUp',
+        Name:'/SignUp',
         component:SignUp
     },{
         path:'/test',
-        name:'/test',
+        Name:'/test',
         component:Test
     },{
         path:'/forgetPassword',
-        name:'/forgetPassword',
+        Name:'/forgetPassword',
         component:Forget
     }
     ]

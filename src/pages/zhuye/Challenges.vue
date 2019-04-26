@@ -17,7 +17,7 @@
                 width="70%"
         >
             <div slot="title" style="text-align: center"><h1>{{problemName}}</h1><h5>{{problemPoint}}</h5></div>
-            <div id="problem-dialog">
+            <div id="problem-dialog" v-html="problemText">
                 {{problemText}}
             </div>
 
@@ -27,7 +27,7 @@
                         <el-input v-model="flag" placeholder="Flag"></el-input>
                     </el-col>
                     <el-col :span="2">
-                        <el-button type="primary" @click="submitFlag()">Submit</el-button>
+                        <el-button type="primary" @click="submitFlag()" :disabled="!canSubmit">Submit</el-button>
                     </el-col>
                 </el-row>
   </span>
@@ -40,11 +40,11 @@
             </el-row>
             <el-row v-for="columnIndex in getColumn(type)" :key="columnIndex" :gutter="40">
                 <el-col :span="6" v-for="item in tttttt(type,columnIndex)" :key="item.value">
-                    <el-badge value="pass" class="item">
-                        <el-button @click="showPanel(item.name)" class="problem-box" type="primary"
-                                   v-loading="loading===item.name">
+                    <el-badge :value="item.Solve" class="item">
+                        <el-button @click="showPanel(type.name,item.ID)" class="problem-box" type="primary"
+                                   v-loading="loading===item.ID">
                             <div>
-                                {{item.name}}<br>
+                                {{item.Name}}<br>
                                 {{item.score}}
                                 <div></div>
                             </div>
@@ -58,66 +58,32 @@
 </template>
 
 <script>
-    /* eslint-disable */
+    /* eslint-disable no-console */
 
 
     export default {
-
         data() {
             return {
                 dialogVisible: false,
                 loading: "",
                 flag: "",
+                canSubmit: true,
+                problemId: 0,
                 problemText: "asd",
                 problemName: "Hacked for fun",
                 problemPoint: 1000,
                 hide: true,
                 active: false,
-                challenges: [{
-                    name: "Web",
-                    questions: [{
-                        name: "pages",
-                        score: 100,
-                        // isLoading:false,
-                    }, {
-                        name: "刀塔自走棋",
-                        score: 1000
-                    }, {
-                        name: "Fucking CSS",
-                        score: 9999
-                    }, {
-                        name: "hacked by kaii",
-                        score: 9999999
-                    }, {
-                        name: "DotA auto chess",
-                        score: 0
-                    }]
-                }, {
-                    name: "pwn",
-                    questions: [{
-                        name: "pwn0",
-                        score: 100
-                    }, {
-                        name: "pwn1",
-                        score: 1000
-                    }, {
-                        name: "pwn2",
-                        score: 9999
-                    }, {
-                        name: "pwn3",
-                        score: 9999999
-                    }, {
-                        name: "pwn4",
-                        score: 0
-                    }]
-                }
-                ]
+                challenges: []
             }
         },
         mounted: function () {
-//初始化加载题目 暂时写死
+            this.$http.get("http://localhost:8888/questions").then(function (res) {
+                    this.challenges = res.body.data
+                }
+            )
         },
-        name: "Challenges",
+        Name: "Challenges",
         methods: {
             getColumn: function (type) {
                 return parseInt(type.questions.length / 4) + 1
@@ -127,36 +93,76 @@
                 return type.questions.slice((index - 1) * 4, index * 4)
             },
 
-        testData:function (item) {
-            this.problemName = "假题";
-            this.problemPoint = -99999;
-            this.problemText = "别看了这是道假题";
-            this.loading = "";
-            this.dialogVisible = "true";
-        },
+            showPanel: function (type, id) {
+                this.loading = id;
 
-            showPanel: function (item) {
-                item = event.currentTarget;
-                this.loading = item;
-                this.testData(item);
+                let q = this.findQuestion(type, id);
+                this.problemName = q.Name;
+                this.problemPoint = q.Score;
+                this.problemText = q.Content;
+                this.problemId = q.ID;
+                this.canSubmit = !(q.Solve === "pass");
+                this.problemText = this.problemText.replace(/\n/g, '<br>');
+                this.loading = "";
+                this.dialogVisible = "true";
 
+            },
 
-                // this.$http.get("http://localhost:1234/getQuestion").then(function (res) {
-                //     let problem=res.body;
-                //     this.problemName = problem.title;
-                //     this.problemPoint=problem.score;
-                //     this.problemText = problem.text;
-                //     this.loading = "";
-                //     this.dialogVisible = "true";
-                // }, function (res) {
-                //     console.log(res);
-                //     this.loading = "";
-                //     this.dialogVisible = "true";
-                //     alert("请求错误");
-                // });
+            findQuestion: function (type, id) {
+                for (let i = 0; i < this.challenges.length; i++) {
+                    if (this.challenges[i].name === type) {
+                        for (let j = 0; j < this.challenges[i].questions.length; j++) {
+                            if (this.challenges[i].questions[j].ID === id) {
+                                return this.challenges[i].questions[j]
+                            }
+                        }
+                    }
+                }
+            },
+
+            findQuestionById: function (id) {
+                for (let i = 0; i < this.challenges.length; i++) {
+                    for (let j = 0; j < this.challenges[i].questions.length; j++) {
+                        if (this.challenges[i].questions[j].ID === id) {
+                            return this.challenges[i].questions[j]
+                        }
+                    }
+                }
+            },
+            flagError: function () {
+                this.$message.error('Flag错误！')
+            },
+
+            ac: function () {
+                this.$message({message: 'Flag正确！', type: 'success'});
+                let q = this.findQuestionById(this.problemId);
+                q.Solve = "pass";
+                this.dialogVisible = false
+            },
+
+            error: function () {
+                this.$message({message: '🐎？', type: 'success'});
             },
             submitFlag: function () {
-
+                this.$http.post("http://localhost:8888/submit", {
+                    "Flag": this.flag,
+                    "QuestionId": this.problemId
+                }).then(function (res) {
+                    console.log(res)
+                    let code = res.body.status;
+                    switch (code) {
+                        case 10000:
+                            this.ac();
+                            break;
+                        case 10021:
+                            this.flagError();
+                            break;
+                        default:
+                            this.error()
+                    }
+                },function(res){
+                    this.error()
+                })
             },
             hidePanel: function () {
                 this.active = false;
@@ -223,7 +229,7 @@
 
     #problem-dialog {
         text-align: left;
-        height: 30rem;
+        height: 25rem;
         overflow: auto;
     }
 

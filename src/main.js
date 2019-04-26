@@ -22,7 +22,7 @@ new Vue({
     el: '#app',
     router,
     render: h => h(App),
-    data: {msg: 'hello world', color: 'color:aqua'},
+    data: {msg: 'hello world', color: 'color:aqua',username:null},
     components: {App, Home, Test, Teams},
     methods: {
         test: function () {

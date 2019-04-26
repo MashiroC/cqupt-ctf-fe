@@ -6,37 +6,37 @@
                     stripe
                     style="width: 100%">
                 <el-table-column
-                        prop="rank"
+                        prop="Rank"
                         label="Rank"
                         width="80">
                 </el-table-column>
                 <el-table-column
-                        prop="name"
+                        prop="Name"
                         label="Name"
                         width="360">
                 </el-table-column>
                 <el-table-column
-                        prop="motto"
+                        prop="Motto"
                         label="Motto"
                         width="480">
                 </el-table-column>
                 <el-table-column
-                        prop="score"
+                        prop="Score"
                         label="Score"
                         width="90">
                 </el-table-column>
                 <el-table-column
-                        prop="solved"
+                        prop="Solved"
                         label="Solved"
                         width="90">
                 </el-table-column>
                 <el-table-column
-                        prop="submitted"
+                        prop="Submitted"
                         label="Submitted"
                         width="100">
                 </el-table-column>
                 <el-table-column
-                        prop="ratio"
+                        prop="Ratio"
                         label="AC Ratio"
                         width="90">
                 </el-table-column>
@@ -55,24 +55,12 @@
 
 <script>
     export default {
-        name: "Scoreboard",
+        Name: "Scoreboard",
         data() {
             return {
                 url: {
                     initPage: ''//打开界面请求数据时的url
                 },
-                pagination:
-                    {
-                        leftEllipsis: true,
-                        rightEllipsis:
-                            true,
-                        maxPage:
-                            11,
-                        centerPages:
-                            [5, 6, 7],
-                        currentPage:
-                            6
-                    },
                 rank: {
                     num: 1,
                     totalData: [],
@@ -80,38 +68,50 @@
                 }
             }
         },
-        computed: {
-            thisRankPage: function () {
-                // return this.rank.data.slice((this.pagination.currentPage - 1) * 25, this.pagination.currentPage * 25);
-            }
-        },
+        computed: {},
         mounted: function () {
 
             //下面是模拟的排名数据
-            let num = Math.ceil(Math.random() * 500);
-            let tempRank = [];
-            for (let i = 0; i < num; i++) {
-                let person = {
-                    name: "余歌 " + (i + 1) + " 号",
-                    motto: "我永远讨厌前端。真香。",
-                    score: Math.ceil(Math.random() * 10000),
-                    solved: 1,
-                    submitted: 1
-                };
-                tempRank.push(person)
-            }
-            tempRank.sort(function (a, b) {
-                return b.score - a.score;
-            });
-            for (let i = 0; i < tempRank.length; i++) {
-                tempRank[i].rank = i + 1;
-                tempRank[i].ratio = tempRank[i].solved / tempRank[i].submitted;
-                this.rank.totalData.push(tempRank[i]);
-            }
+            // let num = Math.ceil(Math.random() * 500);
+            // let tempRank = [];
+            // for (let i = 0; i < num; i++) {
+            //     let person = {
+            //         name: "余歌 " + (i + 1) + " 号",
+            //         motto: "我永远讨厌前端。真香。",
+            //         score: Math.ceil(Math.random() * 10000),
+            //         solved: 1,
+            //         submitted: 1
+            //     };
+            //     tempRank.push(person)
+            // }
+            // tempRank.sort(function (a, b) {
+            //     return b.score - a.score;
+            // });
+            // for (let i = 0; i < tempRank.length; i++) {
+            //     tempRank[i].rank = i + 1;
+            //     tempRank[i].ratio = tempRank[i].solved / tempRank[i].submitted;
+            //     this.rank.totalData.push(tempRank[i]);
+            // }
             //--------------
-
+            this.$http.get("http://localhost:8888/rank").then(function (res) {
+                let ranks = res.body.data.rank;
+                for (let i = 0; i < ranks.length; i++) {
+                    let u = ranks[i];
+                    if (u.Submitted === 0) {
+                        u.Ratio = 0
+                    } else {
+                        u.Ratio = u.Solved / u.Submitted;
+                    }
+                }
+                this.rank.nowData.sort(function (a, b) {
+                    return b.Score - a.Score
+                });
+                for (let i = 0; i < ranks.length; i++) {
+                    ranks[i].Rank = i + 1
+                }
+                this.rank.nowData = ranks
+            })
             //下面是根据总共页数来控制组件
-            this.pagination.maxPage = Math.floor(num / 25) + 1;
             this.renderData(1);
             //TODO:还要渲染一下第一页的数据
         },
