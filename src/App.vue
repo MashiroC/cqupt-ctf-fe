@@ -15,7 +15,8 @@
                     <el-menu-item index="/"><img src="/ziti.png"></el-menu-item>
                     <el-menu-item v-for="item in pages" :key='item.value' :index="item.Name">{{item.Name}}
                     </el-menu-item>
-                    <div v-if="hasLogin()">
+                    <div v-if="this.checkUsername()">
+                        <el-menu-item class="onright" @click="logout()">Log Out</el-menu-item>
                         <el-menu-item class="onright">{{this.username}}</el-menu-item>
                     </div>
                     <div v-else>
@@ -52,10 +53,11 @@
 </template>
 
 <script>
-    import global from "./Global"
+
     export default {
         data() {
             return {
+                username: "",
                 pages: [{Name: "Teams", active: false},
                     {Name: "Challenges", active: false},
                     {Name: "Scoreboard", active: false},
@@ -68,10 +70,12 @@
                 for (let i in this.pages) {
                     this.pages[i].active = this.pages[i].Name === name;
                 }
-            },
-            hasLogin: function () {
-                this.username=global.username
-                return global.username!==""
+            }, checkUsername: function () {
+                this.username = sessionStorage.getItem("username");
+                return this.checkLogin();
+            }, logout: function () {
+                sessionStorage.clear();
+                location.reload();
             }
         }
     }

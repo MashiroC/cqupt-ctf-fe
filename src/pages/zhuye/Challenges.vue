@@ -12,11 +12,11 @@
 
         <!--<el-button type="text" @click="dialogVisible = true">点击打开 Dialog</el-button>-->
 
-        <el-dialog
-                :visible.sync="dialogVisible"
-                width="70%"
-        >
-            <div slot="title" style="text-align: center"><h1>{{problemName}}</h1><h5>{{problemPoint}}</h5></div>
+        <el-dialog :visible.sync="dialogVisible" width="70%" :close-on-click-modal="false">
+            <div slot="title" style="text-align: center">
+                <h1>{{problemName}}</h1>
+                <h5>{{problemPoint}}</h5>
+            </div>
             <div id="problem-dialog" v-html="problemText">
                 {{problemText}}
             </div>
@@ -30,7 +30,7 @@
                         <el-button type="primary" @click="submitFlag()" :disabled="!canSubmit">Submit</el-button>
                     </el-col>
                 </el-row>
-  </span>
+            </span>
         </el-dialog>
         <div v-for="type in challenges" :key="type.value">
             <el-row>
@@ -42,10 +42,11 @@
                 <el-col :span="6" v-for="item in tttttt(type,columnIndex)" :key="item.value">
                     <el-badge :value="item.Solve" class="item">
                         <el-button @click="showPanel(type.name,item.ID)" class="problem-box" type="primary"
-                                   v-loading="loading===item.ID">
+                            v-loading="loading===item.ID">
                             <div>
-                                {{item.Name}}<br>
-                                {{item.score}}
+                                <label style="font-size: 20px">{{item.Name}}</label><br>
+                                <label style="font-size: 15px">Point:{{item.Score}}pt | Solved:{{item.SolveNum}}
+                                    people</label>
                                 <div></div>
                             </div>
                         </el-button>
@@ -60,10 +61,10 @@
 <script>
     /* eslint-disable no-console */
 
-
     export default {
         data() {
             return {
+                Name: "Challenges",
                 dialogVisible: false,
                 loading: "",
                 flag: "",
@@ -78,10 +79,17 @@
             }
         },
         mounted: function () {
-            this.$http.get("http://localhost:8888/questions").then(function (res) {
+            if (this.checkLogin()) {
+                this.$http.get(this.apiDomain + "/questions", {
+                    headers: {
+                        Authorization: "Bearer " + sessionStorage.getItem("jwt")
+                    }
+                }).then(function (res) {
                     this.challenges = res.body.data
-                }
-            )
+                })
+            } else {
+                location.href = "/#/login?origin=" + this.Name;
+            }
         },
         Name: "Challenges",
         methods: {
@@ -134,20 +142,30 @@
             },
 
             ac: function () {
-                this.$message({message: 'Flag正确！', type: 'success'});
+                this.$message({
+                    message: 'Flag正确！',
+                    type: 'success'
+                });
                 let q = this.findQuestionById(this.problemId);
                 q.Solve = "pass";
                 this.dialogVisible = false
             },
 
             error: function () {
-                this.$message({message: '🐎？', type: 'success'});
+                this.$message({
+                    message: '🐎？',
+                    type: 'success'
+                });
             },
             submitFlag: function () {
-                this.$http.post("http://localhost:8888/submit", {
+                this.$http.post(this.apiDomain + "/submit", {
                     "Flag": this.flag,
                     "QuestionId": this.problemId
-                }).then(function (res) {
+                }, {
+                    headers: {
+                        Authorization: "Bearer " + sessionStorage.getItem("jwt")
+                    }
+                }, ).then(function (res) {
                     console.log(res)
                     let code = res.body.status;
                     switch (code) {
@@ -160,7 +178,7 @@
                         default:
                             this.error()
                     }
-                },function(res){
+                }, function (res) {
                     this.error()
                 })
             },
@@ -172,7 +190,6 @@
 </script>
 
 <style scoped>
-
     .el-row {
         margin-bottom: 20px;
 

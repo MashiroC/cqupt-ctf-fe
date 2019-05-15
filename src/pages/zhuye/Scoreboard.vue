@@ -1,53 +1,24 @@
 <template>
     <div class="container">
         <div id="rank">
-            <el-table
-                    :data="rank.nowData"
-                    stripe
-                    style="width: 100%">
-                <el-table-column
-                        prop="Rank"
-                        label="Rank"
-                        width="80">
+            <el-table :data="rank.nowData" stripe style="width: 100%">
+                <el-table-column prop="Rank" label="Rank" width="80">
                 </el-table-column>
-                <el-table-column
-                        prop="Name"
-                        label="Name"
-                        width="360">
+                <el-table-column prop="Name" label="Name" width="360">
                 </el-table-column>
-                <el-table-column
-                        prop="Motto"
-                        label="Motto"
-                        width="480">
+                <el-table-column prop="Motto" label="Motto" width="480">
                 </el-table-column>
-                <el-table-column
-                        prop="Score"
-                        label="Score"
-                        width="90">
+                <el-table-column prop="Score" label="Score" width="90">
                 </el-table-column>
-                <el-table-column
-                        prop="Solved"
-                        label="Solved"
-                        width="90">
+                <el-table-column prop="Solved" label="Solved" width="90">
                 </el-table-column>
-                <el-table-column
-                        prop="Submitted"
-                        label="Submitted"
-                        width="100">
+                <el-table-column prop="Submitted" label="Submitted" width="100">
                 </el-table-column>
-                <el-table-column
-                        prop="Ratio"
-                        label="AC Ratio"
-                        width="90">
+                <el-table-column prop="Ratio" label="AC Ratio" width="90">
                 </el-table-column>
             </el-table>
-            <el-pagination
-                    @current-change="renderData"
-                    :page-size="20"
-                    :pager-count="11"
-                    :current-page="rank.num"
-                    layout="prev, pager, next"
-                    :total="rank.totalData.length">
+            <el-pagination @current-change="renderData" :page-size="20" :pager-count="11" :current-page="rank.num"
+                layout="prev, pager, next" :total="rank.totalData.length">
             </el-pagination>
         </div>
     </div>
@@ -55,11 +26,11 @@
 
 <script>
     export default {
-        Name: "Scoreboard",
         data() {
             return {
+                Name: "Scoreboard",
                 url: {
-                    initPage: ''//打开界面请求数据时的url
+                    initPage: '' //打开界面请求数据时的url
                 },
                 rank: {
                     num: 1,
@@ -71,49 +42,34 @@
         computed: {},
         mounted: function () {
 
-            //下面是模拟的排名数据
-            // let num = Math.ceil(Math.random() * 500);
-            // let tempRank = [];
-            // for (let i = 0; i < num; i++) {
-            //     let person = {
-            //         name: "余歌 " + (i + 1) + " 号",
-            //         motto: "我永远讨厌前端。真香。",
-            //         score: Math.ceil(Math.random() * 10000),
-            //         solved: 1,
-            //         submitted: 1
-            //     };
-            //     tempRank.push(person)
-            // }
-            // tempRank.sort(function (a, b) {
-            //     return b.score - a.score;
-            // });
-            // for (let i = 0; i < tempRank.length; i++) {
-            //     tempRank[i].rank = i + 1;
-            //     tempRank[i].ratio = tempRank[i].solved / tempRank[i].submitted;
-            //     this.rank.totalData.push(tempRank[i]);
-            // }
-            //--------------
-            this.$http.get("http://localhost:8888/rank").then(function (res) {
-                let ranks = res.body.data.rank;
-                for (let i = 0; i < ranks.length; i++) {
-                    let u = ranks[i];
-                    if (u.Submitted === 0) {
-                        u.Ratio = 0
-                    } else {
-                        u.Ratio = u.Solved / u.Submitted;
+            if (this.checkLogin()) {
+                this.$http.get(this.apiDomain + "/rank", {
+                    headers: {
+                        Authorization: "Bearer " + sessionStorage.getItem("jwt")
                     }
-                }
-                this.rank.nowData.sort(function (a, b) {
-                    return b.Score - a.Score
-                });
-                for (let i = 0; i < ranks.length; i++) {
-                    ranks[i].Rank = i + 1
-                }
-                this.rank.nowData = ranks
-            })
-            //下面是根据总共页数来控制组件
-            this.renderData(1);
-            //TODO:还要渲染一下第一页的数据
+                }).then(function (res) {
+                    let ranks = res.body.data.rank;
+                    for (let i = 0; i < ranks.length; i++) {
+                        let u = ranks[i];
+                        if (u.Submitted === 0) {
+                            u.Ratio = 0
+                        } else {
+                            u.Ratio = (u.Solved / u.Submitted).toFixed(2);
+                        }
+                    }
+                    this.rank.nowData.sort(function (a, b) {
+                        return b.Score - a.Score
+                    });
+                    for (let i = 0; i < ranks.length; i++) {
+                        ranks[i].Rank = i + 1
+                    }
+                    this.rank.nowData = ranks
+                })
+                this.renderData(1);
+            } else {
+                location.href = "/#/login?origin=" + this.Name;
+            }
+
         },
         methods: {
             goPage(num) {

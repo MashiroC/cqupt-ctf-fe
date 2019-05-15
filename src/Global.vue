@@ -1,7 +1,7 @@
 <script>
     export default {
         name: "Global",
-        username:""
+        username: "",
     }
 </script>
 
